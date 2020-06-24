@@ -17,14 +17,16 @@ import javax.imageio.ImageIO;
 
 public class PicsMerge {
 
-	private static String FINAL_PATH = "C:/Users/sonali/workspace/pics-merge/final-images";
-	private static String DUPLICATE_FILES = "C:/Users/sonali/workspace/pics-merge/Duplicates.txt";
+	private static String FINAL_PATH = "C:/saurabh/pics-merge/pics/final-images";
+	private static String DUPLICATE_FILES = "C:/saurabh/pics-merge/pics/Duplicates.txt";
+	private static String DELETED_FILES = "C:/saurabh/pics-merge/pics/Deleted.txt";
+	private static String UN_DELETED_FILES = "C:/saurabh/pics-merge/pics/Un-Deleted.txt";
 	private static int newNumber= 1;
 
 	public static void main(String[] args) {
 		System.out.println("Hello World");
 
-		String inputPath = "C:/Users/sonali/Desktop/tocheck";
+		String inputPath = "C:/saurabh/pics-merge/pics/tocheck";
 
 		listFilesForFolder(new File(inputPath));
 
@@ -51,27 +53,37 @@ public class PicsMerge {
 				try{
 				response = compareImages(fileEntry, srcFile);
 				} catch (Exception e){
-					updateTextFile("exception while compare ::::: " + fileEntry.getAbsolutePath());
+					updateTextFile("exception while compare ::::: " + fileEntry.getAbsolutePath(),DUPLICATE_FILES);
 				}
 				if (response) {
 					break;
 				}
 			}else {
-				updateTextFile("exception while compare ::::: " + srcFile.getAbsolutePath());
+				updateTextFile("exception while compare ::::: " + srcFile.getAbsolutePath(),DUPLICATE_FILES);
 			}
+			deleteInputFile(fileEntry);
 		}
 
 		if (!response) {
 			copyFileToTarget(srcFile);
 		} else {
-			updateTextFile(srcFile.getAbsolutePath());
+			updateTextFile(srcFile.getAbsolutePath(),DUPLICATE_FILES);
 		}
 	}
+	
+	private static void deleteInputFile(File srcFile){
+		if(srcFile.delete()){
+			updateTextFile(srcFile.getAbsolutePath(),DELETED_FILES);
+		} else {
+			updateTextFile(srcFile.getAbsolutePath(),UN_DELETED_FILES);
+		}
+			
+	}
 
-	private static void updateTextFile(String name) {
+	private static void updateTextFile(String name,String filePath) {
 		try {
 			String texttobewrittentofile = name + System.lineSeparator();
-		    Files.write(Paths.get(DUPLICATE_FILES), texttobewrittentofile.getBytes(), StandardOpenOption.APPEND,StandardOpenOption.CREATE);
+		    Files.write(Paths.get(filePath), texttobewrittentofile.getBytes(), StandardOpenOption.APPEND,StandardOpenOption.CREATE);
 		}catch (IOException e) {
 		    //exception handling left as an exercise for the reader
 			System.out.println("Exception from updateTextFile while writing :::" + name );
